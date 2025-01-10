@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      {% include 'sidebar.html' %}
+
+      <!-- Main Content -->
+      <div class="col-md-10 p-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <!-- Content Header -->
+            <div class="content-header">
+              <b>New text message</b>
+            </div>
+            <br />
+
+            <form method="POST">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <!-- Buttons -->
+              <div class="d-flex justify-content-end">
+                <button type="reset" class="btn btn-secondary me-2">Reset</button>
+                <button type="submit" class="btn btn-primary">Send</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

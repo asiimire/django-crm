@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      {% include 'sidebar.html' %}
+
+      <!-- Main Content -->
+      <div class="col-md-10 p-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <!-- Content Header -->
+            <div class="content-header">Phone Book</div>
+          
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Name</th>
+                      <th>Contacts</th>
+                      <th>Type</th>
+                      <th>Date Created</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for contact in contacts %}
+                  <tr>
+                      <td>{{ contact.name }}</td>
+                      <td>{{ contact.phone_number }}</td>
+                      <td>{{ contact.contact_type }}</td>
+                      <td>{{ contact.date_created }}</td>
+                      <td>
+                          <a href="{% url 'edit_contact' contact.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                          <a href="{% url 'delete_contact' contact.id %}" class="btn btn-sm btn-danger">Delete</a>
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

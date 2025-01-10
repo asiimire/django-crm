@@ -1,96 +1,44 @@
 <div class="main-content text-center">
-    <div class="container">
-      <!-- Authentication Cards (Login and Registration) -->
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <!-- Registration Form -->
-          <div id="registration-form" class="form-container">
-            <h2>Effortless & Affordable Bulk SMS Solutions for Your Business.</h2>
-            <br />
-            <h5>Register with your email</h5>
-            <form method="post" action="{% url 'home' %}">
-              {% csrf_token %}
-              <input type="hidden" name="register" value="1" />
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Email address" name="email" required />
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-6">
-                  <input type="password" class="form-control" placeholder="Password" name="password" required />
-                </div>
-                <div class="form-group col-md-6">
-                  <input type="password" class="form-control" placeholder="Re-type your password" name="confirm_password" required />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-6">
-                  <input type="text" class="form-control" placeholder="First Name" name="first_name" required />
-                </div>
-                <div class="form-group col-md-6">
-                  <input type="text" class="form-control" placeholder="Last Name" name="last_name" required />
-                </div>
-              </div>
-              <button type="submit" class="btn btn-dark mt-3">Register Now</button>
-            </form>
-            <p class="mt-3">
-              <a href="#" id="show-login">Already have an account? Login here</a>
-            </p>
-          </div>
-          <!-- Login Form -->
-          <div id="login-form" class="form-container" style="display: none;">
-            <h2 class="text-center mb-4">Log in to your account</h2>
-            <form method="post" action="{% url 'home' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <input type="text" class="form-control" name="username" placeholder="Enter your username">
-                </div>
-                <div class="mb-3">
-                    <input type="password" class="form-control" name="password" placeholder="Enter your password">
-                </div>
-                <div class="mb-3 text-end">
-                    <a href="#" class="text-decoration-none">Forgot your password?</a>
-                </div>
-                <button type="submit" class="btn btn-secondary w-100">Log In</button>
-            </form>
-            <p class="mt-3"><a href="#" id="show-register">Don't have an account? Register here</a></p>
-        </div>
-        </div>
+  <div class="container">
+    <!-- Authentication Cards (Login and Registration) -->
+    <div class="row justify-content-center">
 
-  
-        <!-- "Why Choose YourSMS?" Card -->
-        <div class="col-md-6">
-          <div class="form-container mx-auto text-center">
-            <h2>Why Choose YourSMS?</h2>
-            <p>Discover why we stand out in the SMS delivery industry.</p>
-            <ul class="list-group" style="text-align: left;">
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>Fast and Reliable:</b> Lightning-fast message delivery every time.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>Global Reach:</b> Connect with anyone, anywhere, at any time.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>Affordable Pricing:</b> Cost-effective solutions tailored to your needs.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>Secure and Private:</b> Ensure your data remains safe with end-to-end encryption.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>User-Friendly:</b> Simple and intuitive platform for effortless message management.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>Customizable:</b> Tailor your messaging experience with personalized templates.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>24/7 Support:</b> Dedicated customer service to assist you around the clock.
-              </li>
-              <li class="list-group-item bg-transparent border-0 text-white">
-                <b>High Delivery Rate:</b> Reliable SMS delivery with minimal failures.
-              </li>
-            </ul>
-          </div>
+      {% include 'authentication.html' %}
+
+      <!-- "Why Choose YourSMS?" Card -->
+      <div class="col-md-6">
+        <div class="form-container mx-auto text-center">
+          <h2>Why Choose YourSMS?</h2>
+          <p>Discover why we stand out in the SMS delivery industry.</p>
+          <ul class="list-group" style="text-align: left;">
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>Fast and Reliable:</b> Lightning-fast message delivery every time.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>Global Reach:</b> Connect with anyone, anywhere, at any time.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>Affordable Pricing:</b> Cost-effective solutions tailored to your needs.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>Secure and Private:</b> Ensure your data remains safe with end-to-end encryption.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>User-Friendly:</b> Simple and intuitive platform for effortless message management.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>Customizable:</b> Tailor your messaging experience with personalized templates.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>24/7 Support:</b> Dedicated customer service to assist you around the clock.
+            </li>
+            <li class="list-group-item bg-transparent border-0 text-white">
+              <b>High Delivery Rate:</b> Reliable SMS delivery with minimal failures.
+            </li>
+          </ul>
         </div>
       </div>
+      
     </div>
   </div>
-  
+</div>

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <!-- Content Header -->
+                    <div class="content-header">
+                        <b>Sent Messages</b>
+                    </div>
+                    <br />
+
+                    <!-- Filters -->
+                    <form method="get">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                {{ form.keyword }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form.type }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ form.date_from }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ form.date_to }}
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Display Results</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Export button -->
+                    <div class="mb-3">
+                        <a href="#" class="btn btn-success">Export Results to
+                            Excel</a>
+                    </div>
+
+                    <!-- Table -->
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th></th>
+                                <th>Sender ID</th>
+                                <th>Recipients</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>{{ message.from_number }}</td>
+                                <td>{{ message.to }}</td>
+                                <td>{{ message.message }}</td>
+                                <td>{{ message.scheduled_date|date:"d-m-Y,H:iA" }}</td>
+                                <td>{{ message.sent|yesno:"Sent,Not Sent" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6">No messages found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
