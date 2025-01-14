@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      {% include 'sidebar.html' %}
+
+      <!-- Main Content -->
+      <div class="col-md-10 p-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="container mt-5">
+              <h2>Your Drafts</h2>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Message</th>
+                    <th>Date Saved</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for draft in drafts %}
+                    <tr>
+                      <td>{{ draft.to }}</td>
+                      <td>{{ draft.message }}</td>
+                      <td>{{ draft.created_at|date:'M d, Y H:i' }}</td>
+                      <td>
+                        <a href="{% url 'compose' %}?draft_id={{ draft.id }}" class="btn btn-primary">Edit</a>
+                        <a href="{% url 'delete_draft' draft.id %}" class="btn btn-danger">Delete</a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4">No drafts found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

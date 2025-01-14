@@ -8,4 +8,8 @@ urlpatterns = [
     path('personalize/', views.personalize, name='personalize'),
     path('contacts/', views.contacts, name='contacts'),
     path('sent/', views.sent, name='sent'),
+    # path('template/', views.template, name='template'),
+    path('top_up/', views.top_up, name='top_up'),
+    path('drafts/', views.drafts, name='drafts'),
+    
 ]

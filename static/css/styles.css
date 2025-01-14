@@ -2,7 +2,9 @@
 
 html,
 body {
-    background-color: #e9ecef;
+    background-image: url("{% static 'images/back.jpg' %}") !important;
+    background-size: cover;
+    background-position: center;
     margin: 0;
     padding: 0;
 }
@@ -161,8 +163,9 @@ body {
     margin: 0 15px;
 }
 .main-content {
-    background-image: url('/static/images/back.jpg') no-repeat center center fixed;;
+    background-image: url("{% static 'images/back.jpg' %}") !important;
     background-size: cover;
+    background-position: center;
     padding: 50px 0;
     color: white;
 }
@@ -170,11 +173,6 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 30px;
     border-radius: 10px;
-}
-.btn-orange {
-    background-color: #ff6600;
-    border: none;
-    color: #ffffff;
 }
 
 .btn-orange:hover {

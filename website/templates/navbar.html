@@ -1,38 +1,35 @@
+{% load static %}
 <div class="home-header text-center">
-    <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #ff6600; z-index: 1030;">
-        <div class="container">
-            <!-- Brand Name -->
-            <a class="navbar-brand" href="{% url 'home' %}" style="color: #FFFFFF; text-align: left;">
-                <h1 style="margin: 0; font-size: 24px;">YourSMS</h1>
-                <p style="margin: 0; font-size: 14px;">Instant Reliable Personal</p>
-            </a>
-            <!-- Hamburger Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-                style="border: none;">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <!-- Collapsible Menu -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'compose' %}" style="color: #FFFFFF; margin-right: 10px;">Send SMS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #FFFFFF; margin-right: 10px;">Recharge</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #FFFFFF; margin-right: 10px;">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #FFFFFF; margin-right: 10px;">FAQ</a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="nav-link" style="color: #FFFFFF; margin-right: 10px;">+256 770 943151</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #ff6600; z-index: 1030;">
+    <div class="container">
+      <!-- Brand Name -->
+      <a class="navbar-brand" href="{% url 'home' %}" style="color: #FFFFFF; text-align: left;">
+        <h1 style="margin: 0; font-size: 24px;">YourSMS</h1>
+        <p style="margin: 0; font-size: 14px;">Instant Reliable Personal</p>
+      </a>
+      <!-- Hamburger Button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border: none;"><span class="navbar-toggler-icon"></span></button>
+      <!-- Collapsible Menu -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'compose' %}" style="color: #FFFFFF; margin-right: 10px;">Send SMS</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'top_up' %}" style="color: #FFFFFF; margin-right: 10px;">Recharge</a>
+          </li>
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <span class="nav-link" style="color: #FFFFFF; margin-right: 10px;">Hello, {{ username }}! Credit: {{ credits }}</span>
+            </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <span class="nav-link" style="margin-right: 10px;"><a href="https://wa.me/+256770943151?text=I%20am%20making%20an%20inquiry"><img src="{% static '/images/whatsapp.png' %}" alt="whatsapp logo" width="40px" /></a></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 </div>
-<br><br><br><br>
+<br /><br /><br /><br />

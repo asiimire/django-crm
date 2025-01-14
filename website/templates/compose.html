@@ -4,6 +4,7 @@
   <div class="container-fluid">
     <div class="row">
       <!-- Sidebar -->
+
       {% include 'sidebar.html' %}
 
       <!-- Main Content -->
@@ -11,20 +12,64 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <!-- Content Header -->
-            <div class="content-header">
-              <b>New text message</b>
-            </div>
-            <br />
+            <div class="container mt-4">
+              <h5>Compose SMS</h5>
+              <p class="text-muted">Duplicate and invalid numbers will be removed and not charged. Separate multiple numbers with commas, or put each number on a separate line. Accepted formats are: 256xxxxxxx, +256xxxxxxx.</p>
 
-            <form method="POST">
-              {% csrf_token %}
-              {{ form.as_p }}
-              <!-- Buttons -->
-              <div class="d-flex justify-content-end">
-                <button type="reset" class="btn btn-secondary me-2">Reset</button>
-                <button type="submit" class="btn btn-primary">Send</button>
-              </div>
-            </form>
+              <form method="post">
+                {% csrf_token %}
+
+                <!-- Sender ID -->
+                <div class="mb-3">{{ form.sender_id.label_tag }}
+                  {{ form.sender_id }}</div>
+
+                <!-- Recipients -->
+                <div class="mb-3">
+                  <label for="recipients" class="form-label">Recipients</label>
+                  <div class="input-group">
+                    <select class="form-select" id="recipientsGroup" name="recipients_group">
+                      <option value="" selected>Choose Group (Phonebook)</option>
+                      {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  {{ form.recipients }}
+                </div>
+
+                <!-- Message -->
+                <div class="mb-3">{{ form.message.label_tag }}
+                  {{ form.message }}</div>
+
+                <!-- Send Options -->
+                <div class="mb-3">
+                  <label class="form-label">Send</label>
+                  <div>
+                    <!-- Now Option -->
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_0" value="now" />
+                      <label class="form-check-label" for="id_send_now_0">Now</label>
+                    </div>
+
+                    <!-- Later Option with Input -->
+                    <div class="form-check form-check-inline d-flex align-items-center">
+                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_1" value="later" />
+                      <label class="form-check-label me-2" for="id_send_now_1">Later</label>
+                      <div class="flex-grow-1">
+                        <input type="text" class="form-control ms-2" id="sendLaterTime" placeholder="14-01-2025@01:51pm" />
+                      </div>
+                    </div>
+                    <small class="form-text text-muted">Day-month-year@time</small>
+                  </div>
+                </div>
+
+                <br />
+                <!-- Buttons -->
+                <button type="submit" name="send" class="btn btn-dark">Send</button>
+                <button type="submit" name="save_draft" class="btn btn-outline-secondary">Save as Draft</button>
+                {% comment %} <button type="reset" class="btn btn-secondary">Reset</button> {% endcomment %}
+              </form>
+            </div>
           </div>
         </div>
       </div>

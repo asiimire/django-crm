@@ -14,51 +14,13 @@
                 <h2 class="mb-4">Send Personalized SMS</h2>
                 <form>
                     <!-- Sender ID -->
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="id_sender_id" class="form-label">Sender ID</label>
-                            {{ form.sender_id }}
-                        </div>
-                    
-                        <div class="mb-3">
-                            <label for="id_upload_xls" class="form-label">Upload XLS:</label>
-                            {{ form.upload_xls }}
-                            <div class="form-text mt-1">
-                                Upload a .xls file containing your recipient names and numbers. <a href="#">Click here to download a sample XLS file</a>
-                            </div>
-                        </div>
-                    
-                        <div class="mb-3">
-                            <label for="id_message" class="form-label">Message</label>
-                            {{ form.message }}
-                            <div class="form-text mt-1">
-                                Replace Recipient name with <code>@@name@@</code> and Amount value with <code>@@amount@@</code>. <br>
-                                Example: If our recipient is Ronald and he has a balance of 35,000,<br>
-                                Message will be: Hello <code>@@name@@</code>, you have a balance of <code>@@amount@@</code>.<br>
-                                Other parameters include: <code>@@var1@@</code>, <code>@@var2@@</code>, <code>@@var3@@</code>, etc.
-                            </div>
-                        </div>
-                    
-                        <div class="mb-3">
-                            <label class="form-label">Schedule</label>
-                            <div class="form-check">
-                                {{ form.schedule_option }}
-                            </div>
-                            <input type="datetime-local" class="form-control mt-2" id="scheduleTime" name="schedule_time" {% if form.schedule_time.disabled %}disabled{% endif %} value="{{ form.schedule_time.value }}">
-                        </div>
-                    
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <form method="post" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      {{ form.as_p }}
+                      <button type="submit" class="btn btn-primary">Send</button>
+                      <button type="reset" class="btn btn-secondary">Reset</button>
                     </form>
                     
-        
-                    <!-- Buttons -->
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Send</button>
-                        <button type="reset" class="btn btn-secondary">Reset</button>
-                    </div>
-                </form>
             </div>
           </div>
         </div>

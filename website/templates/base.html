@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    {% load static %}
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMS Registration</title>
+    <title> 
+    {% block title %}
+    YourSMS
+    {% endblock title %}
+       </title>
+    {% load static %}
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="{% static 'website/css/styles.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
   </head>
 
   <body>
@@ -18,6 +23,8 @@
       {% block content %}
 
       {% endblock %}
+
+      
     </div>
 
     <!-- Bootstrap JS and dependencies -->
@@ -112,6 +119,7 @@
           scheduleTime.disabled = true;
       });
   </script>
+  
     
   </body>
 </html>

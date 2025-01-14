@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import SMSMessage, Contact, ContactList
+from .models import Message, Contact, ContactList, Group
 
 # registration
 class SignUpForm(UserCreationForm):
@@ -41,72 +41,43 @@ class SignUpForm(UserCreationForm):
 
 
 # compose sms
-class SMSMessageForm(forms.Form):
-    sender_id = forms.CharField(
-        label='Sender ID',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Sender ID'}),
-    )
-    
-    TYPE_CHOICES = [
-        ('group', 'Group'),
-        ('individual', 'Individual'),
-    ]
-    type_recipients = forms.ChoiceField(
-        label='Type Recipients',
-        choices=TYPE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-    )
-    
-    recipients = forms.CharField(
-        label='Recipients',
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Type recipients separated by commas or one per line'}),
-    )
-    
-    PHONE_BOOK_CHOICES = [
-        ('group1', 'Group 1'),
-        ('group2', 'Group 2'),
-        ('group3', 'Group 3'),
-        ('group4', 'Group 4'),
-        ('group5', 'Group 5'),
-    ]
-    phone_book = forms.ChoiceField(
-        label='Phone Book',
-        choices=PHONE_BOOK_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-    )
-    
-    message = forms.CharField(
-        label='Message',
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Type your message here'}),
-    )
-    
-    SEND_OPTIONS = [
-        ('now', 'Now'),
-        ('later', 'Later'),
-    ]
-    send_option = forms.ChoiceField(
-        label='Send',
-        choices=SEND_OPTIONS,
-        widget=forms.RadioSelect,
-        initial='now'
-    )
-    
-    schedule_time = forms.CharField(
-        label='Schedule Time',
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control mt-2', 'placeholder': 'Day-month-year@time', 'disabled': True}),
-    )
-    
-    # This method will help enable/disable the schedule_time field based on the radio choice
-    def clean(self):
-        cleaned_data = super().clean()
-        send_option = cleaned_data.get('send_option')
 
-        # If 'sendLater' is selected, schedule_time should not be empty
-        if send_option == 'later' and not cleaned_data.get('schedule_time'):
-            self.add_error('schedule_time', 'Please specify a schedule time.')
-        
-        return cleaned_data
+class MessageForm(forms.ModelForm):
+    send_now = forms.ChoiceField(
+        choices=[('now', 'Now'), ('later', 'Later')],
+        widget=forms.RadioSelect(attrs={
+            'class': 'form-check-input',
+            'id': 'sendOptions',
+        }),
+        label="Send",
+    )
+    send_later_time = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control ms-2',
+            'placeholder': '14-01-2025@01:51pm',
+            'id': 'sendLaterTime',
+        }),
+        label="",
+    )
+    recipients_group = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Recipients (Groups)",
+    )
+
+    class Meta:
+        model = Message
+        fields = [
+            'sender_id', 'recipients', 'message', 'send_now', 
+            'send_later_time', 'recipients_group'
+        ]
+        widgets = {
+            'sender_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'recipients': forms.Textarea(attrs={'class': 'form-control mt-2', 'rows': 3}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 # personalized messages
 class PersonalizeMessageForm(forms.Form):

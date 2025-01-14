@@ -1,10 +1,22 @@
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SignUpForm, SMSMessageForm, ContactForm, ContactListForm, ContactFilterForm, SentMessagesFilterForm
+from .forms import (
+    PersonalizeMessageForm,
+    SignUpForm,
+    MessageForm,
+    ContactForm,
+    ContactListForm,
+    ContactFilterForm,
+    SentMessagesFilterForm
+)
 from django.contrib.auth.decorators import login_required
-from .models import SMSMessage, Contact, ContactList, SentMessage
+from .models import Group, Message, Contact, Transaction
 import datetime
+from django.db.models import Sum
+
+
 
 def home(request):
     # Initialize forms
@@ -19,7 +31,6 @@ def home(request):
 
             if user is not None:
                 login(request, user)
-                # messages.success(request, "You have successfully logged in.")
                 return redirect('compose')  # Redirect to the compose page
             else:
                 messages.error(request, "Invalid username or password.")
@@ -45,48 +56,99 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-    
+
 # logout user
 def logout_user(request):
     logout(request)
-    # messages.success(request, "You have successfully logged out.")
     return redirect('home')
+
 
 # compose sms
 @login_required
 def compose(request):
-    if request.method == 'POST':
-        form = SMSMessageForm(request.POST)
+    user_credits = Transaction.objects.filter(
+        user=request.user, status="Completed"
+    ).aggregate(total_credits=Sum("amount"))["total_credits"] or 0
+
+    # Check if loading a draft
+    draft_id = request.GET.get("draft_id")
+    if draft_id:
+        sms_message = get_object_or_404(Message, id=draft_id, user=request.user)
+        form = MessageForm(instance=sms_message)
+    else:
+        sms_message = None
+        form = MessageForm()
+
+    if request.method == "POST":
+        form = MessageForm(request.POST, instance=sms_message)
         if form.is_valid():
-            # Save the SMSMessage instance but don't commit yet
             sms_message = form.save(commit=False)
-            sms_message.user = request.user  # Associate the SMS message with the current user
+            sms_message.user = request.user
+
+            # Check if the user clicked "Save as Draft"
+            if "save_draft" in request.POST:
+                sms_message.status = "draft"
+                sms_message.save()
+                return redirect("drafts")  # Redirect to drafts page
+
+            # Default for a message to be sent
+            sms_message.status = "pending"
             sms_message.save()
 
-            # Save the sent message details to the SentMessage model
-            SentMessage.objects.create(
-                sender=sms_message.from_number,
-                recipients=sms_message.to,  # Assuming 'to' contains a single recipient or a comma-separated list
-                message=sms_message.message,
-                user=request.user,
-                status="Pending" if sms_message.scheduled_date else "Sent",  # Handle scheduling status
+            # Placeholder: Add logic for sending SMS
+            return redirect("compose")
+
+    # Fetch user-created groups for the phonebook dropdown
+    groups = Group.objects.filter(user=request.user)
+
+    context = {
+        "form": form,
+        "username": request.user.username,
+        "credits": user_credits,
+        "groups": groups,  # Pass groups to the template
+    }
+
+    return render(request, "compose.html", context)
+
+@login_required
+def drafts(request):
+    drafts = Message.objects.filter(user=request.user, status="draft")
+    return render(request, "drafts.html", {"drafts": drafts})
+
+@login_required
+def delete_draft(request, id):
+    draft = get_object_or_404(Message, id=id, user=request.user, status="draft")
+    draft.delete()
+    return redirect("drafts")
+
+
+
+@login_required
+def top_up(request):
+    if request.method == "POST":
+        form = TopUpForm(request.POST)
+        if form.is_valid():
+            transaction = Transaction.objects.create(
+                user=request.user,  # Associate the transaction with the logged-in user
+                amount=form.cleaned_data["amount"],
+                phone_number=form.cleaned_data["phone_number"],
+                status="Pending",
             )
-
-            # (Optional) Schedule or send the SMS
-            # You can use a task scheduler like Celery for background processing
-            # Example: if sms_message.scheduled_date, schedule the SMS using Celery
-
-            return redirect('sms_dashboard')  # Redirect to the dashboard or success page
+            return HttpResponse(f"Payment initiated for {transaction.phone_number}!")
     else:
-        form = SMSMessageForm()
+        form = TopUpForm()
 
-    return render(request, 'compose.html', {'form': form})
+    recent_transactions = Transaction.objects.filter(user=request.user).order_by("-date")[:5]
 
+    return render(request, "top_up.html", {"form": form, "recent_transactions": recent_transactions})
+
+
+# View for contacts and other views remain unchanged
 
 @login_required
 def contacts(request):
     if request.method == 'POST':
-        form = SMSMessageForm(request.POST)
+        form = MessageForm(request.POST)
         if form.is_valid():
             # Save the form, but with custom modifications for 'from_number' and 'scheduled_date'
             sms_message = form.save(commit=False)
@@ -97,14 +159,14 @@ def contacts(request):
             # (You can use Celery or other task schedulers here)
             return redirect('sms_dashboard')  # Redirect to a dashboard or success page
     else:
-        form = SMSMessageForm()
+        form = MessageForm()
 
     return render(request, 'contacts.html', {'form': form})
 
 @login_required
 def personalize(request):
     if request.method == 'POST':
-        form = SMSMessageForm(request.POST)
+        form = PersonalizeMessageForm(request.POST)
         if form.is_valid():
             # Save the form, but with custom modifications for 'from_number' and 'scheduled_date'
             sms_message = form.save(commit=False)
@@ -115,12 +177,13 @@ def personalize(request):
             # (You can use Celery or other task schedulers here)
             return redirect('sms_dashboard')  # Redirect to a dashboard or success page
     else:
-        form = SMSMessageForm()
+        form = MessageForm()
 
     return render(request, 'personalize.html', {'form': form})
 
 
 # View for listing contacts
+@login_required
 def contact_list(request):
     form = ContactFilterForm(request.GET)
     contacts = Contact.objects.all()
@@ -142,6 +205,7 @@ def contact_list(request):
 
 
 # View for creating a new contact
+@login_required
 def create_contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -155,6 +219,7 @@ def create_contact(request):
 
 
 # View for creating a new contact list
+@login_required
 def create_contact_list(request):
     if request.method == 'POST':
         form = ContactListForm(request.POST)
@@ -167,9 +232,10 @@ def create_contact_list(request):
     return render(request, 'create_contact_list.html', {'form': form})
 
 # sent messages
+@login_required
 def sent(request):
     form = SentMessagesFilterForm(request.GET or None)
-    messages = SMSMessage.objects.all()
+    messages = Message.objects.all()
 
     # Filter based on form data
     if form.is_valid():
@@ -192,3 +258,20 @@ def sent(request):
         'messages': messages,
     }
     return render(request, 'sent.html', context)
+
+# template messages
+# @login_required
+# def template(request):
+#     if request.method == 'POST':
+#         form = TemplateForm(request.POST)
+#         if form.is_valid():
+#             # Process the form data
+#             template_name = form.cleaned_data['template_name']
+#             message = form.cleaned_data['message']
+#             # Save or process the data as needed
+#             print(f"Template Name: {template_name}, Message: {message}")
+#             return redirect('template')  # Redirect to avoid resubmission
+#     else:
+#         form = TemplateForm()
+
+#     return render(request, 'template.html', {'form': form})
