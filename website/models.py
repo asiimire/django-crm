@@ -74,3 +74,13 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.phone_number} - {self.amount} UGX"
+
+# drafts
+class Draft(models.Model):
+    sender_id = models.CharField(max_length=255)
+    message = models.TextField()
+    schedule_time = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.sender_id

@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Message, Contact, ContactList, Group
+from .models import Message, Contact, ContactList, Group, Template
 
 # registration
 class SignUpForm(UserCreationForm):
@@ -82,43 +82,35 @@ class MessageForm(forms.ModelForm):
 # personalized messages
 class PersonalizeMessageForm(forms.Form):
     sender_id = forms.CharField(
-        max_length=255, 
+        max_length=255,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Sender ID'})
     )
-    
-    # For uploading XLS file
-    upload_xls = forms.FileField(
-        required=False,  # File is optional
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xls'})
+
+    # For uploading XLS or CSV file
+    upload_file = forms.FileField(
+        required=True,  # File is mandatory for personalized SMS
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xls,.csv'}),
+        help_text="Upload an Excel or CSV file with recipient details."
     )
-    
+
     message = forms.CharField(
         widget=forms.Textarea(attrs={
-            'class': 'form-control', 
-            'rows': 5, 
+            'class': 'form-control',
+            'rows': 5,
             'placeholder': 'Enter your message here...'
         }),
         help_text=(
-            "Replace Recipient name with <code>@@name@@</code> and Amount value with <code>@@amount@@</code>."
-            "<br>Example: If our recipient is Ronald and he has a balance of 35,000,<br>"
-            "Message will be: Hello <code>@@name@@</code>, you have a balance of <code>@@amount@@</code>.<br>"
-            "Other parameters include: <code>@@var1@@</code>, <code>@@var2@@</code>, <code>@@var3@@</code>, etc."
+            "Use placeholders for personalization:<br>"
+            "<code>@@name@@</code> for recipient name."
         ),
     )
-    
-    # Schedule option (Send now or Later)
-    SCHEDULE_CHOICES = [
-        ('now', 'Send Now'),
-        ('later', 'Later'),
-    ]
-    
+
     schedule_option = forms.ChoiceField(
-        choices=SCHEDULE_CHOICES,
+        choices=[('now', 'Send Now'), ('later', 'Later')],
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
         initial='now'
     )
-    
-    # Schedule time (only enabled if "Later" is selected)
+
     schedule_time = forms.DateTimeField(
         required=False,
         widget=forms.DateTimeInput(attrs={'class': 'form-control mt-2', 'type': 'datetime-local'}),
@@ -130,11 +122,27 @@ class PersonalizeMessageForm(forms.Form):
         schedule_option = cleaned_data.get('schedule_option')
         schedule_time = cleaned_data.get('schedule_time')
 
-        # If 'Later' is selected, schedule_time should not be None
         if schedule_option == 'later' and not schedule_time:
-            self.add_error('schedule_time', 'Schedule time is required when scheduling for later.')
+            self.add_error('schedule_time', 'Schedule time is required for later scheduling.')
 
         return cleaned_data
+
+from django import forms
+from .models import Template
+
+class TemplateForm(forms.ModelForm):
+    class Meta:
+        model = Template
+        fields = ['name', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter template name'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter template message'}),
+        }
+        labels = {
+            'name': 'Template Name',
+            'message': 'Message',
+        }
+
 
 # Form for creating/editing a contact
 class ContactForm(forms.ModelForm):

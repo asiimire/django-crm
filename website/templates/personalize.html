@@ -16,10 +16,57 @@
                     <!-- Sender ID -->
                     <form method="post" enctype="multipart/form-data">
                       {% csrf_token %}
-                      {{ form.as_p }}
-                      <button type="submit" class="btn btn-primary">Send</button>
-                      <button type="reset" class="btn btn-secondary">Reset</button>
+                    
+                      <!-- Sender ID -->
+                      <div class="mb-3">
+                        {{ form.sender_id.label_tag }}
+                        {{ form.sender_id }}
+                      </div>
+                    
+                      <!-- Upload File -->
+                      <div class="mb-3">
+                        {{ form.upload_file.label_tag }}
+                        {{ form.upload_file }}
+                      </div>
+                    
+                      <!-- Message -->
+                      <div class="mb-3">
+                        {{ form.message.label_tag }}
+                        {{ form.message }}
+                      </div>
+                    
+                      <!-- Send Options -->
+                <div class="mb-3">
+                  <label class="form-label">Send</label>
+                  <div>
+                    <!-- Now Option -->
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_0" value="now" />
+                      <label class="form-check-label" for="id_send_now_0">Now</label>
+                    </div>
+
+                    <!-- Later Option with Input -->
+                    <div class="form-check form-check-inline d-flex align-items-center">
+                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_1" value="later" />
+                      <label class="form-check-label me-2" for="id_send_now_1">Later</label>
+                      <div class="flex-grow-1">
+                        <input type="text" class="form-control ms-2" id="sendLaterTime" placeholder="14-01-2025@01:51pm" />
+                      </div>
+                    </div>
+                    <small class="form-text text-muted">Day-month-year@time</small>
+                  </div>
+                </div>
+                    
+                      {% comment %} <!-- Schedule Time -->
+                      <div class="mb-3">
+                        {{ form.schedule_time.label_tag }}
+                        {{ form.schedule_time }}
+                      </div>
+                     {% endcomment %}
+                      <button type="submit" class="btn btn-dark">Send</button>
+                      <button type="submit" name="save_draft" class="btn btn-outline-secondary">Save as Draft</button>
                     </form>
+                    
                     
             </div>
           </div>

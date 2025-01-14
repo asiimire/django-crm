@@ -9,12 +9,14 @@ from .forms import (
     ContactForm,
     ContactListForm,
     ContactFilterForm,
-    SentMessagesFilterForm
+    SentMessagesFilterForm,
+    TemplateForm
 )
 from django.contrib.auth.decorators import login_required
-from .models import Group, Message, Contact, Transaction
+from .models import Draft, Group, Message, Contact, Transaction
 import datetime
 from django.db.models import Sum
+import pandas as pd
 
 
 
@@ -111,17 +113,35 @@ def compose(request):
     return render(request, "compose.html", context)
 
 @login_required
-def drafts(request):
-    drafts = Message.objects.filter(user=request.user, status="draft")
-    return render(request, "drafts.html", {"drafts": drafts})
+def drafts_list(request):
+    drafts = Draft.objects.all().order_by('-created_at')
+    return render(request, 'drafts.html', {'drafts': drafts})
 
 @login_required
-def delete_draft(request, id):
-    draft = get_object_or_404(Message, id=id, user=request.user, status="draft")
+def delete_draft(request, draft_id):
+    draft = get_object_or_404(Draft, id=draft_id)
     draft.delete()
-    return redirect("drafts")
+    messages.success(request, "Draft deleted successfully.")
+    return redirect('drafts_list')
 
-
+def edit_draft(request, draft_id):
+    draft = get_object_or_404(Draft, id=draft_id)
+    if request.method == 'POST':
+        form = PersonalizeMessageForm(request.POST, instance=draft)
+        if form.is_valid():
+            draft.sender_id = form.cleaned_data['sender_id']
+            draft.message = form.cleaned_data['message']
+            draft.schedule_time = form.cleaned_data['schedule_time']
+            draft.save()
+            messages.success(request, "Draft updated successfully.")
+            return redirect('drafts_list')
+    else:
+        form = PersonalizeMessageForm(initial={
+            'sender_id': draft.sender_id,
+            'message': draft.message,
+            'schedule_time': draft.schedule_time,
+        })
+    return render(request, 'edit_draft.html', {'form': form})
 
 @login_required
 def top_up(request):
@@ -166,18 +186,48 @@ def contacts(request):
 @login_required
 def personalize(request):
     if request.method == 'POST':
-        form = PersonalizeMessageForm(request.POST)
+        form = PersonalizeMessageForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save the form, but with custom modifications for 'from_number' and 'scheduled_date'
-            sms_message = form.save(commit=False)
-            sms_message.user = request.user  # Associate the SMS message with the current user
-            sms_message.save()
+            sender_id = form.cleaned_data['sender_id']
+            message_template = form.cleaned_data['message']
+            uploaded_file = request.FILES['upload_file']
 
-            # Schedule or send SMS if necessary
-            # (You can use Celery or other task schedulers here)
-            return redirect('sms_dashboard')  # Redirect to a dashboard or success page
+            # Read the file (CSV or Excel)
+            try:
+                if uploaded_file.name.endswith('.csv'):
+                    data = pd.read_csv(uploaded_file)
+                elif uploaded_file.name.endswith('.xls') or uploaded_file.name.endswith('.xlsx'):
+                    data = pd.read_excel(uploaded_file)
+                else:
+                    messages.error(request, "Unsupported file format.")
+                    return redirect('personalize')
+
+                # Ensure required columns exist
+                if 'name' not in data.columns:
+                    messages.error(request, "The file must have a 'name' column.")
+                    return redirect('personalize')
+
+                # Generate personalized messages
+                personalized_messages = []
+                for _, row in data.iterrows():
+                    personalized_message = message_template.replace('@@name@@', row['name'])
+                    # You can add more placeholders dynamically here
+                    personalized_messages.append({
+                        'recipient': row['name'],
+                        'message': personalized_message
+                    })
+
+                # Send SMS (integrate your SMS API here)
+                for msg in personalized_messages:
+                    print(f"Sending to {msg['recipient']}: {msg['message']}")  # Replace with actual SMS sending logic
+
+                messages.success(request, "Messages sent successfully!")
+            except Exception as e:
+                messages.error(request, f"Error processing file: {e}")
+        else:
+            messages.error(request, "Form submission failed. Please check the inputs.")
     else:
-        form = MessageForm()
+        form = PersonalizeMessageForm()
 
     return render(request, 'personalize.html', {'form': form})
 
@@ -260,18 +310,18 @@ def sent(request):
     return render(request, 'sent.html', context)
 
 # template messages
-# @login_required
-# def template(request):
-#     if request.method == 'POST':
-#         form = TemplateForm(request.POST)
-#         if form.is_valid():
-#             # Process the form data
-#             template_name = form.cleaned_data['template_name']
-#             message = form.cleaned_data['message']
-#             # Save or process the data as needed
-#             print(f"Template Name: {template_name}, Message: {message}")
-#             return redirect('template')  # Redirect to avoid resubmission
-#     else:
-#         form = TemplateForm()
+@login_required
+def template(request):
+    if request.method == 'POST':
+        form = TemplateForm(request.POST)
+        if form.is_valid():
+            # Process the form data
+            template_name = form.cleaned_data['template_name']
+            message = form.cleaned_data['message']
+            # Save or process the data as needed
+            print(f"Template Name: {template_name}, Message: {message}")
+            return redirect('template')  # Redirect to avoid resubmission
+    else:
+        form = TemplateForm()
 
-#     return render(request, 'template.html', {'form': form})
+    return render(request, 'template.html', {'form': form})
