@@ -1,35 +1,52 @@
 {% load static %}
-<div class="home-header text-center">
-  <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #ff6600; z-index: 1030;">
-    <div class="container">
-      <!-- Brand Name -->
-      <a class="navbar-brand" href="{% url 'home' %}" style="color: #FFFFFF; text-align: left;">
-        <h1 style="margin: 0; font-size: 24px;">YourSMS</h1>
-        <p style="margin: 0; font-size: 14px;">Instant Reliable Personal</p>
-      </a>
-      <!-- Hamburger Button -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border: none;"><span class="navbar-toggler-icon"></span></button>
-      <!-- Collapsible Menu -->
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'compose' %}" style="color: #FFFFFF; margin-right: 10px;">Send SMS</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'top_up' %}" style="color: #FFFFFF; margin-right: 10px;">Recharge</a>
-          </li>
-          {% if user.is_authenticated %}
-            <li class="nav-item">
-              <span class="nav-link" style="color: #FFFFFF; margin-right: 10px;">Hello, {{ username }}! Credit: {{ credits }}</span>
-            </li>
-          {% endif %}
 
-          <li class="nav-item">
-            <span class="nav-link" style="margin-right: 10px;"><a href="https://wa.me/+256770943151?text=I%20am%20making%20an%20inquiry"><img src="{% static '/images/whatsapp.png' %}" alt="whatsapp logo" width="40px" /></a></span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<div class="custom-theme">
+<div class="multilevel-offcanvas off-canvas position-right" id="offCanvasRight" data-off-canvas>
+
+  <ul class="vertical menu" data-accordion-menu>
+    <li><a href="{% url 'compose' %}">Compose</a>
+    </li>
+    <li><a href="{% url 'personalize' %}">Customize SMS</a>
+     </li>
+     <li><a href="#">Inbox</a>
+    </li>
+    <li><a href="{% url 'sent' %}">Sent</a>
+    </li>
+    <li><a href="{% url 'template' %}">Template</a>
+    </li>
+    <li><a href="{% url 'drafts_list' %}">drafts_list</a>
+    </li>
+    
+    <li><a href="{% url 'logout' %}">Logout</a>
+    </li>
+   </ul>
 </div>
-<br /><br /><br /><br />
+
+<div class="off-canvas-content" data-off-canvas-content>
+  <div class="nav-bar">
+      <div class="nav-bar-left">
+        <a class="nav-bar-logo"><img class="logo" src="https://placehold.it/150x30"></a>
+      </div>
+      <div class="nav-bar-right">
+        <ul class="menu">
+          <li class="hide-for-small-only"><a href="#">HOME</a></li>
+          <li class="hide-for-small-only"><a href="#">PRICING</a></li>
+          <li class="hide-for-small-only"><a href="#">ABOUT</a></li>
+          <li>
+          {% if user.is_authenticated %}
+          <li>
+            <button class="offcanvas-trigger" type="button" data-open="offCanvasRight">
+              <span class="offcanvas-trigger-text hide-for-small-only">Menu</span>
+              <div class="hamburger">
+                <span class="line"></span>
+                <span class="line"></span>
+                <span class="line"></span>
+              </div>
+            </button>
+          </li>
+          {% endif %}
+        </ul>
+    </div>
+  </div>
+ </div>
+ </div>

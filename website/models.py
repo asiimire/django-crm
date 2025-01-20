@@ -1,86 +1,73 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
-class Group(models.Model):
-    name = models.CharField(max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custom_groups')  # Change 'groups' to 'custom_groups'
-
-    def __str__(self):
-        return self.name
-
-class Message(models.Model):
-    STATUS_CHOICES = [('draft', 'Draft'), ('sent', 'Sent')]
-    sender_id = models.CharField(max_length=11)
-    recipients = models.TextField()
-    message = models.TextField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
-    send_later_time = models.DateTimeField(null=True, blank=True)
-    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        return f"{self.sender_id} - {self.status}"
-
+# Contact model for storing individual user contacts
 class Contact(models.Model):
-    name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=15, unique=True)
-    email = models.EmailField(blank=True, null=True)
-    group = models.CharField(max_length=255, blank=True, null=True)  # Optional: to group contacts
-    status = models.BooleanField(default=True)  # Active (True) or Inactive (False)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-# ContactList model
-class ContactList(models.Model):
-    name = models.CharField(max_length=255)
-    contacts = models.ManyToManyField(Contact, related_name='lists')
-    is_private = models.BooleanField(default=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-# sent messages
-class SentMessage(models.Model):
-    sender = models.CharField(max_length=255)  # Sender ID (e.g., 'NMF')
-    recipients = models.TextField()  # Store a list of recipient numbers as a comma-separated string
-    message = models.TextField()  # The actual message sent
-    date_sent = models.DateTimeField(auto_now_add=True)  # Auto-set when the message is sent
-    status = models.CharField(max_length=50, default="Sent")  # Status of the message (e.g., Sent, Failed)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # User who sent the message
-
-    def __str__(self):
-        return f"Message from {self.sender} to {self.recipients[:20]} ({self.status})"
-
-    
-class Template(models.Model):
-    name = models.CharField(max_length=255)
-    message = models.TextField()
-    last_modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-# payment
-
-class Transaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    sms_count = models.IntegerField(null=True, blank=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contacts")
+    name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
-    date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default="Pending")
 
     def __str__(self):
-        return f"{self.phone_number} - {self.amount} UGX"
+        return f"{self.name} ({self.phone_number})"
 
-# drafts
+# Group model for organizing contacts into groups
+class Group(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contact_groups")
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    contacts = models.ManyToManyField(Contact, related_name="groups")
+
+    def __str__(self):
+        return f"{self.name} (by {self.user.username})"
+
+# Template model for storing reusable message templates
+class Template(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="templates")
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+
+    def __str__(self):
+        return f"Template: {self.title} (by {self.user.username})"
+
+# Message model for storing messages (sent or drafts)
+class Message(models.Model):
+    STATUS_CHOICES = [
+        ("sent", "Sent"),
+        ("draft", "Draft"),
+        ("scheduled", "Scheduled"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages")  # Existing user field
+    content = models.TextField()  # Existing message content
+    sender_id = models.CharField(max_length=100)  # New sender_id field
+    message = models.TextField()  # New message field (can be the same as content if needed)
+    recipients = models.ManyToManyField(Contact, related_name="messages")
+    group_recipients = models.ManyToManyField(Group, related_name="messages", blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    timestamp = models.DateTimeField(default=now)
+    schedule_time = models.DateTimeField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Set sender_id as the user's name before saving
+        self.sender_id = self.user.username  # This stores the sender's name as a string
+        self.message = self.content  # Set message field as content
+        super(Message, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Message by {self.user.username} ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+        
+# Draft model to specifically save drafts separately if needed
 class Draft(models.Model):
-    sender_id = models.CharField(max_length=255)
-    message = models.TextField()
-    schedule_time = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="drafts")
+    content = models.TextField()
+    timestamp = models.DateTimeField(default=now)
+    recipients = models.ManyToManyField(Contact, related_name="drafts", blank=True)
+    group_recipients = models.ManyToManyField(Group, related_name="drafts", blank=True)
 
     def __str__(self):
-        return self.sender_id
+        return f"Draft by {self.user.username} ({self.timestamp.strftime('%Y-%m-%d %H:%M')})"

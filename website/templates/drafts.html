@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
+
+{% block title %}
+Drafts - YourSMS
+{% endblock %}
+
 {% block content %}
+
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
-    {% include 'sidebar.html' %}
+    {% comment %} {% include 'sidebar.html' %} {% endcomment %}
 
     <!-- Main Content -->
     <div class="col-md-10 p-4">
@@ -25,15 +31,20 @@
                     {% for draft in drafts %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ draft.recipients }}</td>
-                        <td>{{ draft.message|truncatewords:10 }}</td>
-                        <td>{{ draft.created_at|date:"d M Y, h:i A" }}</td>
+                        <!-- Display recipient names -->
                         <td>
-                            <a href="{% url 'edit_draft' draft.id %}" class="btn btn-primary btn-sm">Edit</a>
-                            <form action="{% url 'delete_draft' draft.id %}" method="post" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                          {% for recipient in draft.recipients.all %}
+                            {{ recipient.name }}{% if not forloop.last %}, {% endif %}
+                          {% endfor %}
+                        </td>
+                        <!-- Display message content -->
+                        <td>{{ draft.content|truncatewords:10 }}</td>
+                        <!-- Display created at timestamp -->
+                        <td>{{ draft.timestamp|date:"d M Y, h:i A" }}</td>
+                        <td>
+                          <a href="{% url 'edit_draft' draft.id %}" class="btn btn-primary btn-sm">Edit</a>
+                          <a href="{% url 'delete_draft' draft.id %}" class="btn btn-danger btn-sm" 
+                             onclick="return confirm('Are you sure you want to delete this draft?');">Delete</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -50,4 +61,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}

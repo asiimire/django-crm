@@ -1,8 +1,133 @@
+/* foundation css styles */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c3840;
+  height: 75px;
+  margin-bottom: 75px;
+}
+.nav-bar .nav-bar-logo {
+  padding: 1.8rem;
+}
+.nav-bar li {
+  background: #2c3840;
+}
+.nav-bar a {
+  color: #ffffff;
+  transition: color 0.2s ease-in;
+}
+.nav-bar a:hover {
+  color: rgb(167.8888888889, 184.2222222222, 195.1111111111);
+}
+@media screen and (max-width: 39.9375em) {
+  .nav-bar {
+    height: 53.5714285714px;
+  }
+}
+.nav-bar .offcanvas-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.6rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  background-color: rgb(85.5555555556, 108.8888888889, 124.4444444444);
+  transition: background-color 0.2s ease-in;
+  cursor: pointer;
+}
+.nav-bar .offcanvas-trigger .offcanvas-trigger-text {
+  margin-right: 0.25rem;
+  margin-top: 0.25rem;
+}
+.nav-bar .offcanvas-trigger:hover {
+  background-color: rgb(107.4444444444, 135.1111111111, 153.5555555556);
+}
+@media screen and (max-width: 39.9375em) {
+  .nav-bar .offcanvas-trigger {
+    padding: 0.9rem;
+  }
+}
+
+.multilevel-offcanvas {
+  background: rgb(33.6111111111, 42.7777777778, 48.8888888889);
+  padding: 20px;
+  color: #ffffff;
+}
+.multilevel-offcanvas > .menu {
+  margin-bottom: 1rem;
+}
+.multilevel-offcanvas .menu a {
+  color: rgba(255, 255, 255, 0.6);
+  padding-top: 7px;
+  padding-bottom: 7px;
+  transition: color 0.2s ease-in;
+}
+.multilevel-offcanvas .menu a:hover {
+  color: #ffffff;
+}
+.multilevel-offcanvas .fa {
+  color: #ffffff;
+}
+.multilevel-offcanvas .is-accordion-submenu-parent > a::after {
+  border-color: rgba(255, 255, 255, 0.6) transparent transparent;
+}
+.multilevel-offcanvas .social-links {
+  margin-left: 20px;
+}
+.multilevel-offcanvas .social-links li {
+  margin-right: 5px;
+}
+.multilevel-offcanvas .social-links a:hover .fa {
+  color: rgb(191.25, 191.25, 191.25);
+  transition: color 0.2s ease-in;
+}
+.multilevel-offcanvas .social-links .fa {
+  font-size: 2.2rem;
+}
+
+.body-info {
+  text-align: center;
+  color: #2c3840;
+}
+.body-info .button {
+  margin: 1rem 0;
+  padding: 0.85em 2em;
+}
+
+.is-open + .off-canvas-content .hamburger .line:nth-child(1),
+.is-open + .off-canvas-content .hamburger .line:nth-child(3) {
+  width: 12px;
+}
+.is-open + .off-canvas-content .hamburger .line:nth-child(1) {
+  transform: translateX(-5px) rotate(-45deg);
+}
+.is-open + .off-canvas-content .hamburger .line:nth-child(3) {
+  transform: translateX(-5px) rotate(45deg);
+}
+
+.hamburger .line {
+  width: 20px;
+  height: 2px;
+  background-color: #ffffff;
+  display: block;
+  margin: 3px auto;
+  transition: all 0.3s ease-in-out;
+}
+.hamburger .line:last-child {
+  margin-bottom: 0;
+}
+
+/*# sourceMappingURL=styles.css.map */
+
+/* other styles */
 /* compose */
 
 html,
 body {
-    background-color: #e9ecef;
+    background-image: url("{% static 'images/back.jpg' %}") !important;
+    background-size: cover;
+    background-position: center;
     margin: 0;
     padding: 0;
 }
@@ -161,8 +286,9 @@ body {
     margin: 0 15px;
 }
 .main-content {
-    background-image: url('back.jpg');
+    background-image: url("{% static 'images/back.jpg' %}") !important;
     background-size: cover;
+    background-position: center;
     padding: 50px 0;
     color: white;
 }
@@ -170,11 +296,6 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 30px;
     border-radius: 10px;
-}
-.btn-orange {
-    background-color: #ff6600;
-    border: none;
-    color: #ffffff;
 }
 
 .btn-orange:hover {

@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,6 +17,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AFRICAS_TALKING_USERNAME = config("user_name")
+AFRICAS_TALKING_API_KEY = config("api_key")
 
 # Application definition
 

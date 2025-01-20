@@ -1,7 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Message, Contact, ContactList, Group, Template
+from .models import Message, Contact, Group, Template
+import re
 
 # registration
 class SignUpForm(UserCreationForm):
@@ -42,6 +43,9 @@ class SignUpForm(UserCreationForm):
 
 # compose sms
 
+from django import forms
+import re
+
 class MessageForm(forms.ModelForm):
     send_now = forms.ChoiceField(
         choices=[('now', 'Now'), ('later', 'Later')],
@@ -78,6 +82,28 @@ class MessageForm(forms.ModelForm):
             'recipients': forms.Textarea(attrs={'class': 'form-control mt-2', 'rows': 3}),
             'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_recipients(self):
+        recipients = self.cleaned_data.get('recipients', '')
+
+        # Split the recipients by commas
+        recipients_list = [r.strip() for r in recipients.split(',') if r.strip()]
+
+        # Regular expression to validate phone numbers (e.g., +254711XXXYYY)
+        phone_number_regex = re.compile(r'^\+?[1-9]\d{1,14}$')
+
+        # Validate each phone number
+        invalid_numbers = [
+            number for number in recipients_list if not phone_number_regex.match(number)
+        ]
+
+        if invalid_numbers:
+            raise forms.ValidationError(
+                f"The following phone numbers are invalid: {', '.join(invalid_numbers)}"
+            )
+
+        # Return the cleaned recipients as a comma-separated string
+        return ','.join(recipients_list)
 
 # personalized messages
 class PersonalizeMessageForm(forms.Form):
@@ -133,14 +159,14 @@ from .models import Template
 class TemplateForm(forms.ModelForm):
     class Meta:
         model = Template
-        fields = ['name', 'message']
+        fields = ['title', 'content']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter template name'}),
-            'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter template message'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter template title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter template content'}),
         }
         labels = {
-            'name': 'Template Name',
-            'message': 'Message',
+            'title': 'Template title',
+            'content': 'content',
         }
 
 
@@ -159,22 +185,6 @@ class ContactForm(forms.ModelForm):
 
 
 # Form for creating/editing a contact list
-class ContactListForm(forms.ModelForm):
-    class Meta:
-        model = ContactList
-        fields = ['name', 'is_private', 'contacts']
-        widgets = {
-            'contacts': forms.CheckboxSelectMultiple(),  # Allow selecting multiple contacts
-        }
-
-    # Custom validation for list name to ensure uniqueness
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if ContactList.objects.filter(name=name).exists():
-            raise forms.ValidationError("A list with this name already exists.")
-        return name
-
-# Form for filtering contacts (pagination / search functionality can be added)
 class ContactFilterForm(forms.Form):
     search_query = forms.CharField(max_length=100, required=False, label='Search')
     contact_type = forms.ChoiceField(choices=[('PRIVATE', 'Private'), ('SHARED', 'Shared')], required=False, label='Type')
@@ -212,3 +222,14 @@ class SentMessagesFilterForm(forms.Form):
             'placeholder': 'Date To'
         })
     )
+
+
+
+# class TopUpForm(forms.ModelForm):
+#     class Meta:
+#         model = Transaction
+#         fields = ["amount", "phone_number"]
+#         widgets = {
+#             "amount": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Enter amount"}),
+#             "phone_number": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter phone number"}),
+#         }

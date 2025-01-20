@@ -1,57 +1,41 @@
 from django.contrib import admin
-from .models import Group, Message, Contact, ContactList, SentMessage, Template, Transaction
+from .models import Contact, Group, Template, Message, Draft
 
-
-@admin.register(Group)
-class GroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user')
-    search_fields = ('name', 'user__username')
-    list_filter = ('user',)
-
-
-@admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('sender_id', 'status', 'send_later_time', 'group')
-    search_fields = ('sender_id', 'recipients', 'message')
-    list_filter = ('status', 'send_later_time')
-    autocomplete_fields = ('group',)
-
-
+# Register the Contact model
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone_number', 'group', 'status', 'date_added')
-    search_fields = ('name', 'phone_number', 'email')
-    list_filter = ('status', 'date_added')
-    ordering = ('-date_added',)
+    list_display = ('name', 'phone_number', 'user')
+    search_fields = ('name', 'phone_number', 'user__username')
+    list_filter = ('user',)
 
+# Register the Group model
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'description')
+    search_fields = ('name', 'description', 'user__username')
+    list_filter = ('user',)
+    filter_horizontal = ('contacts',)  # Easier selection for many-to-many fields
 
-@admin.register(ContactList)
-class ContactListAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_private', 'date_created')
-    search_fields = ('name',)
-    list_filter = ('is_private', 'date_created')
-    filter_horizontal = ('contacts',)
-
-
-@admin.register(SentMessage)
-class SentMessageAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'recipients', 'status', 'date_sent', 'user')
-    search_fields = ('sender', 'recipients')
-    list_filter = ('status', 'date_sent')
-    autocomplete_fields = ('user',)
-
-
+# Register the Template model
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'last_modified')
-    search_fields = ('name', 'message')
-    list_filter = ('last_modified',)
-    ordering = ('-last_modified',)
+    list_display = ('title', 'user')
+    search_fields = ('title', 'content', 'user__username')
+    list_filter = ('user',)
 
+# Register the Message model
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('content', 'user', 'status', 'timestamp', 'schedule_time')
+    search_fields = ('content', 'user__username', 'status')
+    list_filter = ('status', 'timestamp', 'user')
+    filter_horizontal = ('recipients', 'group_recipients')  # Easier selection for many-to-many fields
+    date_hierarchy = 'timestamp'
 
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'sms_count', 'amount', 'phone_number', 'status', 'date')
-    search_fields = ('user__username', 'phone_number')
-    list_filter = ('status', 'date')
-    ordering = ('-date',)
+# Register the Draft model
+@admin.register(Draft)
+class DraftAdmin(admin.ModelAdmin):
+    list_display = ('content', 'user', 'timestamp')
+    search_fields = ('content', 'user__username')
+    list_filter = ('timestamp', 'user')
+    filter_horizontal = ('recipients', 'group_recipients')  # Easier selection for many-to-many fields

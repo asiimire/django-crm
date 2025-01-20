@@ -1,78 +1,101 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Compose - YourSMS
+{% endblock %}
+
 {% block content %}
   <div class="container-fluid">
     <div class="row">
       <!-- Sidebar -->
 
-      {% include 'sidebar.html' %}
+      {% comment %} {% include 'sidebar.html' %} {% endcomment %}
 
       <!-- Main Content -->
-      <div class="col-md-10 p-4">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <!-- Content Header -->
-            <div class="container mt-4">
-              <h5>Compose SMS</h5>
-              <p class="text-muted">Duplicate and invalid numbers will be removed and not charged. Separate multiple numbers with commas, or put each number on a separate line. Accepted formats are: 256xxxxxxx, +256xxxxxxx.</p>
+      <main class="col-sm-10 bg-body-tertiary" id="main">
+        <div class="container-fluid">
+          <div class="col-md-10 p-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <!-- Content Header -->
+                <div class="container mt-4">
+                  <h5>Compose SMS</h5>
+                  <p class="text-muted">
+                    Duplicate and invalid numbers will be removed and not charged. Separate multiple numbers with commas, or put each number on a separate line. Accepted formats: <strong>+256711111111, +256722222222</strong>.
+                  </p>
 
-              <form method="post">
-                {% csrf_token %}
+                  <form method="post">
+                    {% csrf_token %}
 
-                <!-- Sender ID -->
-                <div class="mb-3">{{ form.sender_id.label_tag }}
-                  {{ form.sender_id }}</div>
-
-                <!-- Recipients -->
-                <div class="mb-3">
-                  <label for="recipients" class="form-label">Recipients</label>
-                  <div class="input-group">
-                    <select class="form-select" id="recipientsGroup" name="recipients_group">
-                      <option value="" selected>Choose Group (Phonebook)</option>
-                      {% for group in groups %}
-                        <option value="{{ group.id }}">{{ group.name }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  {{ form.recipients }}
-                </div>
-
-                <!-- Message -->
-                <div class="mb-3">{{ form.message.label_tag }}
-                  {{ form.message }}</div>
-
-                <!-- Send Options -->
-                <div class="mb-3">
-                  <label class="form-label">Send</label>
-                  <div>
-                    <!-- Now Option -->
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_0" value="now" />
-                      <label class="form-check-label" for="id_send_now_0">Now</label>
+                    <!-- Sender ID -->
+                    <div class="mb-3">
+                      {{ form.sender_id.label_tag }}
+                      {{ form.sender_id }}
+                      {% if form.sender_id.errors %}
+                        <div class="text-danger small">{{ form.sender_id.errors }}</div>
+                      {% endif %}
                     </div>
 
-                    <!-- Later Option with Input -->
-                    <div class="form-check form-check-inline d-flex align-items-center">
-                      <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_1" value="later" />
-                      <label class="form-check-label me-2" for="id_send_now_1">Later</label>
-                      <div class="flex-grow-1">
-                        <input type="text" class="form-control ms-2" id="sendLaterTime" placeholder="14-01-2025@01:51pm" />
+                    <!-- Recipients -->
+                    <div class="mb-3">
+                      <label for="recipients" class="form-label">Recipients</label>
+                      <div class="input-group">
+                        <select class="form-select" id="recipientsGroup" name="recipients_group">
+                          <option value="" selected>Choose Group (Phonebook)</option>
+                          {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      {{ form.recipients }}
+                      {% if form.recipients.errors %}
+                        <div class="text-danger small">{{ form.recipients.errors }}</div>
+                      {% endif %}
+                    </div>
+
+                    <!-- Message -->
+                    <div class="mb-3">
+                      {{ form.message.label_tag }}
+                      {{ form.message }}
+                      {% if form.message.errors %}
+                        <div class="text-danger small">{{ form.message.errors }}</div>
+                      {% endif %}
+                    </div>
+
+                    <!-- Send Options -->
+                    <div class="mb-3">
+                      <label class="form-label">Send</label>
+                      <div>
+                        <!-- Now Option -->
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_0" value="now" />
+                          <label class="form-check-label" for="id_send_now_0">Now</label>
+                        </div>
+
+                        <!-- Later Option with Input -->
+                        <div class="form-check form-check-inline d-flex align-items-center">
+                          <input class="form-check-input" type="radio" name="sendOptions" id="id_send_now_1" value="later" />
+                          <label class="form-check-label me-2" for="id_send_now_1">Later</label>
+                          <div class="flex-grow-1">
+                            <input type="text" class="form-control ms-2" id="sendLaterTime" placeholder="14-01-2025@01:51pm" />
+                          </div>
+                        </div>
+                        <small class="form-text text-muted">Day-month-year@time</small>
                       </div>
                     </div>
-                    <small class="form-text text-muted">Day-month-year@time</small>
-                  </div>
-                </div>
 
-                <br />
-                <!-- Buttons -->
-                <button type="submit" name="send" class="btn btn-dark">Send</button>
-                <button type="submit" name="save_draft" class="btn btn-outline-secondary">Save as Draft</button>
-                {% comment %} <button type="reset" class="btn btn-secondary">Reset</button> {% endcomment %}
-              </form>
+                    <br />
+                    <!-- Buttons -->
+                    <button type="submit" name="send" class="btn btn-dark">Send</button>
+                    <button type="submit" name="save_draft" class="btn btn-outline-secondary">Save as Draft</button>
+                    {% comment %} <button type="reset" class="btn btn-secondary">Reset</button> {% endcomment %}
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 {% endblock %}

@@ -1,50 +1,75 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block title %}
+Compose - YourSMS
+{% endblock %}
 
+{% block content %}
   <div class="container-fluid">
     <div class="row">
       <!-- Sidebar -->
-      {% include 'sidebar.html' %}
+
+      {% comment %} {% include 'sidebar.html' %} {% endcomment %}
 
       <!-- Main Content -->
-      <div class="col-md-10 p-4">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <!-- Content Header -->
-            <div class="content-header">Phone Book</div>
-          
-          <table class="table">
-              <thead>
-                  <tr>
-                      <th>Name</th>
-                      <th>Contacts</th>
-                      <th>Type</th>
-                      <th>Date Created</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for contact in contacts %}
-                  <tr>
-                      <td>{{ contact.name }}</td>
-                      <td>{{ contact.phone_number }}</td>
-                      <td>{{ contact.contact_type }}</td>
-                      <td>{{ contact.date_created }}</td>
-                      <td>
-                          <a href="{% url 'edit_contact' contact.id %}" class="btn btn-sm btn-secondary">Edit</a>
-                          <a href="{% url 'delete_contact' contact.id %}" class="btn btn-sm btn-danger">Delete</a>
-                      </td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-          
-          </div>
+      <main class="col-sm-10 bg-body-tertiary" id="main">
 
+    <div class="container mt-4">
+        <h2 class="mb-3">Phone Book</h2>
+
+        <!-- Create Group Section -->
+        <div class="mb-4">
+            <label for="groupName" class="form-label">Create a new group</label>
+            <div class="input-group">
+                <input type="text" id="groupName" class="form-control" placeholder="Enter group name">
+                <button class="btn btn-outline-secondary">Create Group</button>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
 
+        <!-- Table Section -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll"> All</th>
+                    <th>Group Name</th>
+                    <th>No. of Contacts</th>
+                    <th>Date Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Example Row -->
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>Example Group</td>
+                    <td>10</td>
+                    <td>2025-01-10</td>
+                </tr>
+                <!-- Additional rows can be added dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Add Phone Numbers Section -->
+        <div class="mb-4">
+            <label for="addToGroup" class="form-label">Add phone numbers to group</label>
+            <select id="addToGroup" class="form-select mb-3">
+                <option selected>Select Group</option>
+                <option>Example Group 1</option>
+                <option>Example Group 2</option>
+            </select>
+
+            <textarea class="form-control mb-2" rows="6" placeholder="Enter phone numbers here, one per line or separated by commas"></textarea>
+
+            <small class="form-text text-muted">
+                Each number on a new line or separate by comma.<br>
+                Formats allowed: 256773928351, +256773928351, 773928351
+            </small>
+        </div>
+
+        <button class="btn btn-dark">Add to Phone Book</button>
+    </div>
+    <br>
+    <br>
+</main>
+</div>
+</div>
 {% endblock %}
